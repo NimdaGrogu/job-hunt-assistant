@@ -1,4 +1,16 @@
-questions_v1 = {
+import logging
+from rich.logging import RichHandler
+# Configure basic config with RichHandler
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s", # Rich handles the timestamp and level separately
+    datefmt="[%X]",
+    handlers=[RichHandler(rich_tracebacks=True)]
+)
+
+logger = logging.getLogger("prompt_eng")
+
+v1 = {
             "q1": "Does the candidate meet the required skills?",
             "q2": "Is the candidate a good fit for the job position?",
             "q3": "Evaluate and analyse the candidate resume and job description, your respond MUST be only a number, that"
@@ -13,7 +25,7 @@ questions_v1 = {
                   "description and requirements"
         }
 
-questions_v2 = {
+v2 = {
     # q1: Changed to a Table for easy reading.
     # We ask for "Evidence" to prevent the AI from hallucinating skills.
     "q1": """
@@ -82,3 +94,23 @@ questions_v2 = {
       candidate is the perfect fit for THIS job description.
     """
 }
+
+
+def get_prompt_ver(version: str)-> dict[str, str] | None:
+    """
+
+    :param version:
+    :return:
+    """
+
+    prompt_version = {
+        "v1":v1,
+        "v2":v2
+        }
+    try:
+        prompt = prompt_version[version]
+        logger.info(f"[*] Return Prompt version {version}")
+        return prompt
+    except Exception as e:
+        logger.exception(f"[*] Prompt version {version} Not Found!!\n\n{e}")
+        return None

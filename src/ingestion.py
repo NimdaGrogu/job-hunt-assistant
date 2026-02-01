@@ -7,7 +7,7 @@ from rich.logging import RichHandler
 
 # Configure basic config with RichHandler
 logging.basicConfig(
-    level=logging.WARNING,
+    level=logging.INFO,
     format="%(message)s", # Rich handles the timestamp and level separately
     datefmt="[%X]",
     handlers=[RichHandler(rich_tracebacks=True)]
@@ -50,7 +50,7 @@ def get_pdf_text_pypdf(uploaded_file, verbose=False) -> Optional[tuple]:
     import pypdf
     try:
         # Read the PDF file directly from the stream
-        logger.info(f"[*] Reading PDF. {uploaded_file}")
+        logger.info(f"[*] Reading PDF. {uploaded_file.name}")
         pdf_reader = pypdf.PdfReader(uploaded_file)
         text = ""
         for page in pdf_reader.pages:
@@ -77,10 +77,3 @@ def get_pdf_text_pdfplumber(uploaded_file, verbose=False)-> Optional[tuple]:
     except Exception as e:
         logger.error(f"Error reading PDF: {e}")
         return None
-
-
-
-
-jd = get_jd_from_url(url="https://www.linkedin.com/jobs/view/4328324249/https://www.linkedin.com/jobs/view/4328324249/")
-
-print(jd)

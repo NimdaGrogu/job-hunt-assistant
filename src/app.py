@@ -1,7 +1,7 @@
 # Libraries
 
 from ingestion import get_jd_from_url, get_pdf_text_pypdf, get_pdf_text_pdfplumber
-from recruiter_helper import questions_v2
+from recruiter_helper import get_prompt_ver
 from rag_implementation import get_rag_chain
 from helper import extract_match_score
 from dotenv import load_dotenv
@@ -13,7 +13,7 @@ from rich.logging import RichHandler
 
 # Configure basic Logging config with RichHandler
 logging.basicConfig(
-    level=logging.WARNING,
+    level=logging.INFO,
     format="%(message)s", # Rich handles the timestamp and level separately
     datefmt="[%X]",
     handlers=[RichHandler(rich_tracebacks=True)]
@@ -34,7 +34,7 @@ st.markdown("**Provide a job description URL and a candidate resume to get a com
 with st.sidebar:
     st.header("Input Data")
     # Input 1: Web Page Link (Job Description)
-    jd_url = st.text_input(placeholder="https://linkedin.com/jobs/view/..",
+    jd_url = st.text_input(placeholder="https://linkedin.com/jobs/",
                            max_chars=5000,
                            label="Job Description URL ")
     # Input 2: Raw text (Job Description)
@@ -116,7 +116,7 @@ if submit:
         qa_chain = get_rag_chain(resume_text, uploaded_resume.name)
 
         # 2. Define your questions
-        questions = questions_v2
+        questions = get_prompt_ver(version="v2")
 
         # Initialize an empty string to accumulate the report
         full_report = f"# Candidate Analysis Report\n"
@@ -135,7 +135,7 @@ if submit:
 
         with tabs[0]:  # Q1, Q2, Q3
             st.markdown("### 🎯 Fit Assessment")
-            logger.info("Entering Fit Assessment")
+            logger.info("[*] Entering Fit Assessment")
             logger.info("[*] Match Details: LLM Processing Q3")
             q3_ans = qa_chain.invoke({"query": f"{base_query}\n\n{questions['q3']}"})
             with st.expander("**Match Details:** "):

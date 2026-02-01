@@ -24,7 +24,7 @@ from rich.logging import RichHandler
 
 # Configure basic config with RichHandler
 logging.basicConfig(
-    level=logging.WARNING,
+    level=logging.INFO,
     format="%(message)s", # Rich handles the timestamp and level separately
     datefmt="[%X]",
     handlers=[RichHandler(rich_tracebacks=True)]
@@ -43,14 +43,14 @@ def clean_filename(name: str):
 def get_rag_chain(resume_text, resume_file_name):
 
     # 1. Split the text into chunks
-    logger.info("Split text into chunks")
+    logger.info("[*] Split text into chunks")
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=150)
     chunks = text_splitter.split_text(resume_text)
 
     # 2. Create Embeddings & Vector Store
     # This turns text into vectors so we can search it
     # Initialize the OpenAI Embeddings model with API credentials
-    logger.info("Create Embeddings & Vector Store")
+    logger.info("[*] Create Embeddings & Vector Store")
     embeddings = OpenAIEmbeddings(
         openai_api_key=os.getenv("OPENAI_API_KEY"),  #  OpenAI API key for authentication
         openai_api_base=os.getenv("OPENAI_API_BASE")  # OpenAI API base URL endpoint
@@ -65,7 +65,7 @@ def get_rag_chain(resume_text, resume_file_name):
     db_index_file_name = f"index_{clean_filename(resume_file_name)}"
     db_faiss_path = f"{out_dir}/{db_index_file_name}.faiss"
     if os.path.exists(db_faiss_path):
-        logger.info("Existing vector store found. Loading...")
+        logger.info("[*] Existing vector store found.")
         # Load existing
         vectorstore_local = FAISS.load_local(
             folder_path=out_dir,
@@ -77,8 +77,8 @@ def get_rag_chain(resume_text, resume_file_name):
         logger.warning("[*] No vector store found. Creating new embeddings...")
         vector_store = FAISS.from_texts(chunks, embedding=embeddings)
         vector_store.save_local(folder_path=out_dir, index_name=f"{db_index_file_name}")
-        logger.info("Vector store saved successfully.")
-        logger.info("Loading New Vector Store ..")
+        logger.info("[*] Vector store saved successfully.")
+        logger.info("[*] Loading New Vector Store ..")
         vectorstore_local = FAISS.load_local(
             folder_path=out_dir,
             embeddings=embeddings,
