@@ -1,13 +1,6 @@
-A professional `README.md` is the "face" of your project on GitHub. It tells people (and future you) what the project does and exactly how to get it running.
-
-Since your project supports both **Local Python** execution and **Docker**, we will include instructions for both.
-
-Here is a complete, copy-paste ready `README.md`. Create a file named `README.md` in your project root and paste this content.
-
----
 
 # 👔 AI Recruiter Assistant (Job Hunt Helper)
-
+---
 A professional Streamlit application powered by **LangChain** and **OpenAI (GPT-4o)**. This tool helps job seekers and recruiters analyze resumes against specific job descriptions using RAG (Retrieval-Augmented Generation).
 
 ## 🚀 Features
