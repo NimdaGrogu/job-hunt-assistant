@@ -22,7 +22,8 @@ A professional Streamlit application powered by **LangChain** and **OpenAI (GPT-
 * **AI Model:** OpenAI GPT-4o
 * **Vector Store:** FAISS
 * **Containerization:** Docker
-
+---
+![aijobhuntool.png](aijobhuntool.png)
 ---
 
 ## ⚙️ Configuration (API Key)
