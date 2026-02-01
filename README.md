@@ -12,7 +12,6 @@ A professional Streamlit application powered by **LangChain** and **OpenAI (GPT-
 * 📊 Fit Score (0-100%) with visual progress bar.
 * 📈 SWOT Analysis (Strengths, Weaknesses/Opportunities).
 
-
 * **Application Kit:** Generates a tailored Cover Letter and Interview Elevator Pitch.
 * **Export:** Download the full analysis as a Markdown report.
 
