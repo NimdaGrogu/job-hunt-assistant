@@ -59,6 +59,7 @@ def get_rag_chain(resume_text, resume_file_name):
     # DB Persistence
     # Vector DB folder
     out_dir = 'vector_db'  # name of the vector database
+    logger.info("[*] Checking for Vector Store ")
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     db_index_file_name = f"index_{clean_filename(resume_file_name)}"
@@ -73,7 +74,7 @@ def get_rag_chain(resume_text, resume_file_name):
             index_name=f"{db_index_file_name}"
         )
     else:
-        print("No vector store found. Creating new embeddings...")
+        logger.warning("[*] No vector store found. Creating new embeddings...")
         vector_store = FAISS.from_texts(chunks, embedding=embeddings)
         vector_store.save_local(folder_path=out_dir, index_name=f"{db_index_file_name}")
         logger.info("Vector store saved successfully.")
