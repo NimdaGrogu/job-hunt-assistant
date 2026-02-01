@@ -1,40 +1,133 @@
-# 🧠 Job Hunt Assistant (LLM-Driven)
+A professional `README.md` is the "face" of your project on GitHub. It tells people (and future you) what the project does and exactly how to get it running.
 
-After being lay off I had some free time that allow me to work on this personal project an intelligent, AI-powered job hunting assistant that helps users craft resumes, tailor cover letters, analyze job postings, and prepare for interviews — all powered by state-of-the-art Large Language Models (LLMs).
-applying all the skills I have learned during my journey of learning Machine learnig and AI and how this can be implemented to solve real business problems.
+Since your project supports both **Local Python** execution and **Docker**, we will include instructions for both.
 
-
----
-
-## 🚀 Overview
-
-**Job Hunt Assistant** is designed to streamline the entire job search process using natural language understanding and generation.  
-By leveraging an advanced LLM, the tool automates tedious tasks and provides personalized insights — helping you spend more time applying and less time struggling with documents.
+Here is a complete, copy-paste ready `README.md`. Create a file named `README.md` in your project root and paste this content.
 
 ---
 
-## ✨ Features
+# 👔 AI Recruiter Assistant (Job Hunt Helper)
 
-- 📝 **Resume Optimization** — Analyze and tailor your resume to specific job descriptions.
-- 💌 **Cover Letter Generator** — Instantly generate professional, role-specific cover letters.
-- 🔍 **Job Description Analysis** — Extract key skills, qualifications, and requirements from any posting.
-- 🧩 **Skill Gap Detection** — Identify missing qualifications and receive upskilling recommendations.
-- 🗣️ **Interview Prep Assistant** — Simulate technical and behavioral interviews with dynamic question generation.
-- 🧭 **Job Tracking Dashboard** — Keep track of applications, interviews, and recruiter feedback.
-- 🤖 **LLM Integration** — Built with an adaptable API layer for OpenAI GPT models or other LLM providers.
+A professional Streamlit application powered by **LangChain** and **OpenAI (GPT-4o)**. This tool helps job seekers and recruiters analyze resumes against specific job descriptions using RAG (Retrieval-Augmented Generation).
+
+## 🚀 Features
+
+* **Resume Parsing:** Extracts text from PDF resumes.
+* **Job Description Scraping:** automatically scrapes text from a provided Job URL.
+* **AI Analysis:** Uses RAG to answer specific questions:
+* ✅ Skills Gap Analysis (Table format).
+* 📊 Fit Score (0-100%) with visual progress bar.
+* 📈 SWOT Analysis (Strengths, Weaknesses/Opportunities).
+
+
+* **Application Kit:** Generates a tailored Cover Letter and Interview Elevator Pitch.
+* **Export:** Download the full analysis as a Markdown report.
+
+## 🛠️ Tech Stack
+
+* **Frontend:** Streamlit
+* **LLM Orchestration:** LangChain
+* **AI Model:** OpenAI GPT-4o
+* **Vector Store:** FAISS
+* **Containerization:** Docker
 
 ---
 
-## 🏗️ Architecture
+## ⚙️ Configuration (API Key)
 
-```mermaid
-graph TD
-    A[User Input] -->|Prompt or Upload| B[LLM Engine]
-    B --> C[Resume Analyzer]
-    B --> D[Cover Letter Generator]
-    B --> E[Job Description Parser]
-    B --> F[Interview Prep]
-    C --> G[Output UI / Dashboard]
-    D --> G
-    E --> G
-    F --> G
+This project requires an OpenAI API key to run.
+
+1. **Get your key**: Sign up at [platform.openai.com](https://platform.openai.com/).
+2. **Create the secrets file**:
+Create a file named `.env` in the `src/` folder (or project root).
+3. **Add your key**:
+Open the `.env` file and add the following line:
+```bash
+OPENAI_API_KEY=sk-your-actual-api-key-here
+
+```
+
+
+
+> **⚠️ Security Note:** Never commit your `.env` file to GitHub. It is already included in `.gitignore`.
+
+---
+
+## 💻 How to Run Locally
+
+### Prerequisites
+
+* Python 3.13+
+* Pip
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/yourusername/job-hunt-assistant.git
+cd job-hunt-assistant
+
+```
+
+### 2. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+
+```
+
+### 3. Run the App
+
+```bash
+streamlit run src/app.py
+
+```
+
+*The app should open automatically at `http://localhost:8501*`
+
+---
+
+## 🐳 How to Run with Docker
+
+If you prefer using Docker to ensure a consistent environment:
+
+### 1. Build the Image
+
+```bash
+docker build -t job-hunt-assistant .
+
+```
+
+### 2. Run the Container
+
+You must pass your API key to the container. We use the `--env-file` flag to pass your local secrets safely.
+
+```bash
+docker run -p 8501:8501 --env-file src/.env job-hunt-assistant
+
+```
+
+* **Access the app:** Open your browser to `http://localhost:8501`
+* *(Note: 0.0.0.0 in the terminal logs means it is listening inside the container; you must use localhost in your browser).*
+
+---
+
+## 📂 Project Structure
+
+```text
+job-hunt-assistant/
+├── src/
+│   ├── app.py           # Main application logic
+│   └── .env             # API Keys (Do not commit!)
+├── Dockerfile           # Docker configuration
+├── requirements.txt     # Python dependencies
+└── README.md            # Project documentation
+
+```
+
+## 🤝 Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+## 📄 License
+
+[MIT](https://choosealicense.com/licenses/mit/)

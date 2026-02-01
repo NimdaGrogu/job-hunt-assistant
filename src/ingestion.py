@@ -66,7 +66,7 @@ def get_pdf_text_pypdf(uploaded_file, verbose=False) -> Optional[tuple]:
 def get_pdf_text_pdfplumber(uploaded_file, verbose=False)-> Optional[tuple]:
     import pdfplumber
     try:
-        logger.info(f"Reading PDF. {uploaded_file}")
+        logger.info(f"[*] Reading PDF. {uploaded_file.name}")
         with pdfplumber.open(uploaded_file) as pdf:
             text = ""
             for page in pdf.pages:
