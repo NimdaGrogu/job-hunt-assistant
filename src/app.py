@@ -63,7 +63,7 @@ with st.sidebar:
     """
     # 4. Add your footer content (This must be the LAST thing you write to the sidebar)
     st.markdown("---")  # Optional horizontal rule
-    st.link_button("Visit GitHub Repo", "https://github.com/NimdaGrogu/Academic/tree/main/job_hunt_buddy")
+    st.link_button("Visit GitHub Repo", "https://github.com/NimdaGrogu/job-hunt-assistant.git")
     st.caption("© 2026 Grogus")
 
     # 3. Inject the CSS
