@@ -8,7 +8,7 @@ services:
     env_file:
       - src/.env
     volumes:
-      # This allows you to edit code on your Mac and see changes instantly
+      # This allows you to edit code and see changes instantly
       # without rebuilding the container every time.
       - ./src:/app/src
     environment:
