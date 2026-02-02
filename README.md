@@ -56,7 +56,7 @@ OPENAI_API_KEY=sk-your-actual-api-key-here
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/job-hunt-assistant.git
+git clone https://github.com/NimdaGrogu/job-hunt-assistant.git
 cd job-hunt-assistant
 
 ```
