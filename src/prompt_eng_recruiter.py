@@ -38,7 +38,7 @@ v2 = {
 
     # q2: Changed to force a decision + reasoning.
     "q2": """
-    Act as a Senior Technical Recruiter. Based on the analysis, provide a summary of the candidate's fit.
+    Based on the analysis, provide a summary of the candidate's fit.
     Start with a bold "Fit Decision: [High/Medium/Low]".
     Follow with a 3-sentence justification highlighting the key reason for this decision.
     """,
@@ -96,6 +96,30 @@ v2 = {
     """
 }
 
+# Define the Prompt, this tells the LLM how to behave
+prompt_template = """
+        Act as a Senior Technical Recruiter, you are fair, strict, analytical, and detail-oriented.
+        Your goal is to analyze the Candidate's Resume against the Job Description.
+
+        Context (Resume): {context}
+
+        User Query: {question}
+
+        Your task are the following:
+        1-Answer the query using ONLY the information provided in the context. 
+        If the information is not in the resume, explicitly state "Not mentioned in resume" rather than guessing.
+        2- Fairly Analyze and Interpret the candidate resume based on the job description and provide a professional assessment.
+        """
+
+def jd_as_context(jd: str)->str:
+    """
+    This function creates a Based Query that combines the job description
+    :param jd:
+    :return:
+    """
+    # Combining the Job Description as a context in the base query
+    base_query = f"Based on this Job Description: \n\n {jd} \n\n Answer this: "
+    return base_query
 
 def get_prompt_ver(version: str)-> dict[str, str] | None:
     """
@@ -110,7 +134,7 @@ def get_prompt_ver(version: str)-> dict[str, str] | None:
         }
     try:
         prompt = prompt_version[version]
-        logger.info(f"ℹ️ Return Prompt version {version}")
+        logger.info(f"ℹ️  Return Prompt version {version}")
         return prompt
     except Exception as e:
         logger.warning(f"️⚠️️ Prompt version {version} Not Found!!\n\n{e}")

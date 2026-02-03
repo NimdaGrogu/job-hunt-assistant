@@ -1,5 +1,6 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_classic.chains.retrieval_qa.base import RetrievalQA
+from prompt_eng_recruiter import prompt_template
 # Embeddings & Chat Model
 # (Now live in the dedicated langchain_openai package)
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
@@ -66,9 +67,9 @@ def get_rag_chain(resume_text, resume_file_name):
     db_index_file_name = f"index_{clean_filename(resume_file_name)}"
     # Defining faiss path
     db_faiss_path = f"{out_dir}/{db_index_file_name}.faiss"
-    logger.info("ℹ️ Checking for Vector Store ")
+    logger.info("ℹ️  Checking for Vector Store ")
     if os.path.exists(db_faiss_path):
-        logger.info(f"ℹ️ Existing vector store found.{db_faiss_path}")
+        logger.info(f"ℹ️  Existing vector store found: {db_faiss_path}")
         # Load existing
         vectorstore_local = FAISS.load_local(
             folder_path=out_dir,
@@ -79,44 +80,27 @@ def get_rag_chain(resume_text, resume_file_name):
     else:
         logger.warning("⚠️ No vector store found ..")
         # 1. Split the text into chunks
-        logger.info("ℹ️ Split text into chunks")
+        logger.info("ℹ️  Split text into chunks")
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1200, chunk_overlap=100)
         chunks = text_splitter.split_text(resume_text)
 
         try:
             # 2. Creating Embeddings
-            logger.info("ℹ️ Creating Embeddings .")
+            logger.info("ℹ️  Creating Embeddings .")
             vectorstore_local = FAISS.from_texts(chunks, embedding=embeddings)
         except RateLimitError as e:
-            logging.exception("[🚨] Rate limit hit!")
+            logging.exception("🚨 Rate limit hit!")
             logging.error(e)
             raise
 
-        logger.info("[ ℹ️ ] Storing Vector Store for Caching ..")
+        logger.info("ℹ️  Storing Vector Store for Caching ..")
         vectorstore_local.save_local(folder_path=out_dir, index_name=db_index_file_name)
 
     # 3. Setup the Retriever
     # We will retrieve the top 3 most relevant chunks of the resume
     retriever = vectorstore_local.as_retriever(search_type="similarity", search_kwargs={"k": 3})
 
-    # 4. Define the Prompt
-    # This tells the LLM how to behave
-    # 4. Define the Prompt (Tuned)
-    prompt_template = """
-        You are a Senior Technical Recruiter with 20 years of experience. 
-        You are strict, analytical, and detail-oriented.
 
-        Your goal is to analyze the Candidate's Resume against the Job Description.
-
-        Context (Resume segments): {context}
-
-        User Query: {question}
-
-        Your task are the following:
-        1-Answer the query using ONLY the information provided in the context. 
-        If the information is not in the resume, explicitly state "Not mentioned in resume" rather than guessing.
-        2- Fairly Analyze and Interpret the candidate resume based on the job description and provide a professional assessment.
-        """
 
     prompt = PromptTemplate(
         template=prompt_template, input_variables=["context", "question"]
