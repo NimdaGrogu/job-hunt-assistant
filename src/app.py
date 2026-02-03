@@ -26,12 +26,14 @@ logger = logging.getLogger("app")
 load_dotenv()
 open_api_key = os.getenv("OPENAI_API_KEY")
 
-# Streamlit Configuration
+# --- Streamlit Configuration
 st.set_page_config(page_title="AI Job Hunt Assistant", page_icon="🚀", layout='wide')
 # Main Streamlit
 st.title("👔 AI Job Hunt Assistant")
 st.markdown("**Provide a job description URL and a candidate resume to get a comprehensive analysis.**")
-# Sidebar for Inputs
+
+
+# ---- Sidebar for Inputs
 with st.sidebar:
     st.header("Input Data")
     # Input 1: Web Page Link (Job Description)
@@ -73,6 +75,9 @@ if 'analysis_results' not in st.session_state:
     st.session_state['analysis_results'] = None
 if 'full_report' not in st.session_state:
     st.session_state['full_report'] = None
+# Initialize History
+if 'history' not in st.session_state:
+    st.session_state['history'] = []
 
 # 2. Trigger Analysis (COMPUTATION LAYER)
 if submit:
@@ -87,7 +92,7 @@ if submit:
         st.error("⚠️ Please provide Job Description ...")
         st.stop()
 
-    # --- Processing ---
+    # --- Job Description Validation ---
     if jd_url:
         job_description = get_jd_from_url(jd_url)
         if job_description is None:
@@ -96,51 +101,70 @@ if submit:
     else:
         job_description = jd_text
 
-    with st.spinner("Analysing Candidate Resume and Job Description.."):
+    # Get Resume Text
+    with st.spinner("Extracting text from Resume..."):
+        resume_text = get_pdf_text_pdfplumber(uploaded_resume)
+
+    # --- MAIN ANALYSIS LOOP WITH PROGRESS BAR ---
+    if resume_text and job_description:
         try:
-            resume_text = get_pdf_text_pdfplumber(uploaded_resume)
+            # 1. Setup Phase
+            # Initialize the progress bar
+            progress_bar = st.progress(0, text="Initializing AI 🧠 ..")
+
             qa_chain = get_rag_chain(resume_text, uploaded_resume.name)
             questions = get_prompt_ver(version="v2")
             query = jd_as_context(jd=job_description)
 
-            # --- EXECUTE CHAINS & STORE IN DICTIONARY ---
-            # We store the RESULTS, not the widgets.
+            # Storing the RESULTS
             results = {}
 
-            # Q3 Match Score
+            # 2. Q3 Match Score (10%)
+            progress_bar.progress(10, text="Calculating Match Score... (10%)")
             q3_ans = qa_chain.invoke({"query": f"{query}\n\n{questions['q3']}"})
             results['q3'] = q3_ans['result']
             results['score'] = extract_match_score(q3_ans['result'])
 
-            # Q1 Skills
+            # 3. Q1 Skills (20%)
+            progress_bar.progress(20, text="Analyzing Skills Gap... (20%)")
             q1_ans = qa_chain.invoke({"query": f"{query}\n\n{questions['q1']}"})
             results['q1'] = q1_ans['result']
 
-            # Q2 Fit Check
+            # 4. Q2 Fit Check (30%)
+            progress_bar.progress(30, text="Evaluating Cultural & Technical Fit... (30%)")
             q2_ans = qa_chain.invoke({"query": f"{query}\n\n{questions['q2']}"})
             results['q2'] = q2_ans['result']
 
-            # Q4, Q5, Q6 SWOT
+            # 5. SWOT Analysis
+            progress_bar.progress(40, text="Identifying Strengths... (40%)")
             q4_ans = qa_chain.invoke({"query": f"{query}\n\n{questions['q4']}"})
             results['q4'] = q4_ans['result']
 
+            progress_bar.progress(55, text="Identifying Opportunities... (55%)")
             q5_ans = qa_chain.invoke({"query": f"{query}\n\n{questions['q5']}"})
             results['q5'] = q5_ans['result']
 
+            progress_bar.progress(70, text="Checking for Red Flags... (70%)")
             q6_ans = qa_chain.invoke({"query": f"{query}\n\n{questions['q6']}"})
             results['q6'] = q6_ans['result']
 
-            # Q7, Q8, Q9 App Kit
+            # 6. App Kit
+            progress_bar.progress(80, text="Drafting Cover Letter... (80%)")
             q7_ans = qa_chain.invoke({"query": f"{query}\n\n{questions['q7']}"})
             results['q7'] = q7_ans['result']
 
+            progress_bar.progress(90, text="Generating Interview Tips... (90%)")
             q8_ans = qa_chain.invoke({"query": f"{query}\n\n{questions['q8']}"})
             results['q8'] = q8_ans['result']
 
             q9_ans = qa_chain.invoke({"query": f"{query}\n\n{questions['q9']}"})
             results['q9'] = q9_ans['result']
 
-            # Build the Report String
+            # Finish
+            progress_bar.progress(100, text="Analysis Complete! (100%)")
+            progress_bar.empty()
+
+            # --- BUILD REPORT & SAVE ---
             report = f"# Candidate Analysis Report\n"
             report += f"**Job Description:** {jd_url or 'Provided Text'}\n\n---\n\n"
             report += f"## Match Score: {results['score']}%\n\n"
@@ -157,6 +181,10 @@ if submit:
             st.session_state['analysis_results'] = results
             st.session_state['full_report'] = report
 
+            # --- SAVE TO HISTORY (Your Logic Here) ---
+            # ... (Insert your history saving code here) ...
+
+            st.success("✅ Analysis and Assessment Completed ..!")
             logger.info("✅ Analysis stored in Session State.")
 
         except Exception as e:
@@ -216,6 +244,7 @@ if st.session_state['analysis_results']:
     with tabs[3]:
         st.subheader("🎤 Interview Elevator Pitch")
         st.info(results['q9'])
+
 
     # --- EXPORT BUTTON ---
     st.divider()
