@@ -298,7 +298,7 @@ if st.session_state['analysis_results']:
 
     # This button will now work because 'full_report' is read from session_state
     st.download_button(
-        label="Download Full Analysis (Markdown/Text)",
+        label="Download Full Analysis Report (Markdown/Text)",
         data=st.session_state['full_report'],
         file_name="candidate_analysis.md",
         mime="text/markdown"
