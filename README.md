@@ -129,6 +129,7 @@ Next Features:
 * **Application Tracking:** Helps the Candidate, to track job applications and follow up (Implementing SQLAgent)
 * **LLM as Judge:** Integrate Gemini LLM to perform guardrails ensuring fair evaluation of the candidate 
 regardless of skin color, ethnicity, socio-economic position, and religion.
+
 **Pull requests are welcome**. For major changes, please open an issue first to discuss what you would like to change.
 
 **Thanks..**
