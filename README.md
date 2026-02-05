@@ -13,7 +13,10 @@ A professional Streamlit application powered by **LangChain** and **OpenAI (GPT-
 * 📈 SWOT Analysis (Strengths, Weaknesses/Opportunities).
 
 * **Application Kit:** Generates a tailored Cover Letter and Interview Elevator Pitch.
-* **Export:** Download the full analysis as a Markdown report.
+* ⚙️ Export: Download the full analysis as a Markdown report.
+* Exportable Reports: One-click download of the entire analysis (SWOT, Scores, Cover Letter) as a Markdown file.
+* Dockerized Deployment: Fully containerized with docker-compose for consistent performance across any environment.
+* Debug Mode: Optional verbose logging configuration to trace LLM prompts and responses for development.
 
 ## 🛠️ Tech Stack
 
@@ -120,9 +123,14 @@ job-hunt-assistant/
 ```
 
 ## 🤝 Contributing
+Next Features:
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+* **Session History:** Automatically saves analyzed candidates to a sidebar history, allowing recruiters to switch between profiles without re-running the analysis.
+* **Application Tracking:** Helps the Candidate, to track job applications and follow up (Implementing SQLAgent) 
+ 
+**Pull requests are welcome**. For major changes, please open an issue first to discuss what you would like to change.
 
+**Thanks..**
 ## 📄 License
 
 [MIT](https://choosealicense.com/licenses/mit/)
