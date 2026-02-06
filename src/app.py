@@ -1,6 +1,6 @@
 # Libraries
 
-from ingestion import get_jd_from_url, get_pdf_text_pypdf, get_pdf_text_pdfplumber
+from ingestion import get_jd_from_url, get_pdf_text_pypdf, get_pdf_text_pdfplumber, get_pdf_text_pymupdf
 from prompt_eng_recruiter import get_prompt_ver, jd_as_context
 from rag_implementation import get_rag_chain
 from helper import extract_match_score, DebugCallbackHandler
@@ -56,8 +56,6 @@ with st.sidebar:
             del st.session_state['full_report']
 
         os.environ.pop("VERBOSE_RAG_LOGS", None)
-
-
         # Force the app to rerun immediately
         st.rerun()
     # -------------------------
@@ -81,6 +79,8 @@ if 'full_report' not in st.session_state:
 # Initialize History
 if 'history' not in st.session_state:
     st.session_state['history'] = []
+
+# --- Submit Button ---
 
 # 2. Trigger Analysis (COMPUTATION LAYER)
 if submit:
@@ -106,7 +106,12 @@ if submit:
 
     # Get Resume Text
     with st.spinner("Extracting text from Resume..."):
-        resume_text = get_pdf_text_pdfplumber(uploaded_resume)
+        try:
+            #resume_text = get_pdf_text_pymupdf(uploaded_file=uploaded_resume)
+            resume_text = get_pdf_text_pdfplumber(uploaded_resume)
+        except Exception as e:
+            st.error(f"☠️ An error occurred reading the PDF: {uploaded_resume}")
+            st.stop()
 
     # --- MAIN ANALYSIS LOOP WITH PROGRESS BAR ---
     if resume_text and job_description:
