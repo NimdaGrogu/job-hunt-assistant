@@ -66,7 +66,7 @@ def get_pdf_text_pypdf(uploaded_file, verbose=False) -> Optional[tuple]:
 def get_pdf_text_pdfplumber(uploaded_file, verbose=False)-> Optional[tuple]:
     import pdfplumber
     try:
-        logger.info(f"ℹ️  Reading PDF: {uploaded_file.name}")
+        #logger.info(f"ℹ️  Reading PDF: {uploaded_file.name}")
         with pdfplumber.open(uploaded_file) as pdf:
             text = ""
             for page in pdf.pages:
@@ -76,4 +76,46 @@ def get_pdf_text_pdfplumber(uploaded_file, verbose=False)-> Optional[tuple]:
             return text
     except Exception as e:
         logger.error(f"☠️ Error reading PDF: {e}")
+
+
+
+def get_pdf_text_pymupdf(uploaded_file, split_ratio=0.35, verbose=False)-> str | None:
+    import fitz
+    logger.info(f"ℹ️  Reading PDF: {uploaded_file.name}")
+    try:
+        # Uploaded_file is a Streamlit UploadedFile object
+        uploaded_file.seek(0)  # Reset pointer to start just in case
+        # Read bytes from the stream and tell fitz it's a PDF
+        uploaded_file_bytes = uploaded_file.read()
+        with fitz.open(stream=uploaded_file_bytes, filetype="pdf") as pdf:
+            full_text = []
+            for page in pdf:
+                w, h = page.rect.width, page.rect.height
+
+                # split page into 2 columns
+                split_x = w * split_ratio
+
+                left_rect = fitz.Rect(0, 0, split_x, h)
+                right_rect = fitz.Rect(split_x, 0, w, h)
+
+                # extract blocks per column
+                left_blocks = page.get_text("blocks", clip=left_rect)
+                right_blocks = page.get_text("blocks", clip=right_rect)
+
+                # sort blocks top → bottom
+                left_blocks = sorted(left_blocks, key=lambda b: (b[1], b[0]))
+                right_blocks = sorted(right_blocks, key=lambda b: (b[1], b[0]))
+
+                # add text in reading order
+                for b in left_blocks:
+                    full_text.append(b[4].strip())
+
+                for b in right_blocks:
+                    full_text.append(b[4].strip())
+
+        return "\n".join(full_text)
+    except Exception as e:
+        logger.error(f"☠️  Error reading PDF: {e}")
         return None
+
+

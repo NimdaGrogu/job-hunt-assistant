@@ -89,7 +89,7 @@ docker build -t job-hunt-assistant .
 
 ```
 
-### 2. Run the Container
+### 2. Option A Run the Container
 
 You must pass your API key to the container. We use the `--env-file` flag to pass your local secrets safely.
 
@@ -102,7 +102,7 @@ docker run -p 8501:8501 --env-file src/.env job-hunt-assistant
 * *(Note: 0.0.0.0 in the terminal logs means it is listening inside the container; you must use localhost in your browser).*
 
 ---
-### 2. Docker Compose
+### 2. Option B use Docker Compose
 **Assuming you are in the root directory**
 ```bash
 docker compose up
