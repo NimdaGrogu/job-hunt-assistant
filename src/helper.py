@@ -1,7 +1,10 @@
 from langchain_core.callbacks import BaseCallbackHandler
 import re
 import logging
-logger = logging.getLogger("rag_debugger")
+import os
+import pandas as pd
+
+logger = logging.getLogger("helper_debugger")
 
 def extract_match_score(response_text):
     # Search for a number between 0 and 100
@@ -9,6 +12,26 @@ def extract_match_score(response_text):
     if match:
         return int(match.group(0))
     return 0
+
+
+def load_tracker_data():
+    """Loads the job tracker data from a CSV, or creates an empty DataFrame if it doesn't exist."""
+    TRACKER_FILE = "job_tracker.csv"
+
+    if os.path.exists(TRACKER_FILE):
+        return pd.read_csv(TRACKER_FILE)
+    else:
+        # Define the columns for a new tracker
+        df = pd.DataFrame(columns=[
+            "Date Applied", "Company", "Job Title", "Match Score", "Status", "URL", "Notes"
+        ])
+        return df
+
+def save_tracker_data(df):
+    TRACKER_FILE = "job_tracker.csv"
+    """Saves the DataFrame to the CSV file."""
+    df.to_csv(TRACKER_FILE, index=False)
+
 
 class DebugCallbackHandler(BaseCallbackHandler):
 

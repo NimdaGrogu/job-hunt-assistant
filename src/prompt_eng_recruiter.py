@@ -93,8 +93,28 @@ v2 = {
     
     - The pitch should answer "Tell me about yourself" by weaving the resume experience and matched skills into a narrative that proves the
       candidate is the perfect fit for THIS job description.
+    """,
+    ## this prompt is going to ask the LLM to extract the Job Title and Company for the tracker
+    "q_meta":"""
+    Task: Extract the Company Name and the Job Title from the Job Description.
+    Constraint: Output ONLY a valid JSON object. Do not include markdown formatting, backticks, or conversational text.
+    If you cannot find the information, use "Unknown" as the value.
+    
+    Expected Format:
+    {"company": "Extracted Company Name", "title": "Extracted Job Title"}
     """
 }
+
+v3 = """
+Task: Extract the Company Name and the Job Title from the Job Description.
+Constraint: Output ONLY a valid JSON object. Do not include markdown formatting, backticks, or conversational text.
+If you cannot find the information, use "Unknown" as the value.
+
+Expected Format:
+{"company": "Extracted Company Name", "title": "Extracted Job Title"}
+"""
+
+
 
 # Define the Prompt, this tells the LLM how to behave
 prompt_template = """
