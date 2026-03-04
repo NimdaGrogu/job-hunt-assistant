@@ -41,12 +41,7 @@ Built with Python, Streamlit, LangChain, and OpenAI, and fully containerized wit
 
 ### Installation & Setup
 
-1. **Clone the repository:**
-   ```bash
-   git clone [https://github.com/yourusername/job-hunt-assistant.git](https://github.com/yourusername/job-hunt-assistant.git)
-   cd job-hunt-assistant
----
-![aijobhuntool.png](aijobhuntool.png)
+
 ---
 
 > **⚠️ Security Note:** Never commit your `.env` file to GitHub. It is already included in `.gitignore`.
@@ -84,6 +79,7 @@ VERBOSE_RAG_LOGS=false
 ### 2. Install Dependencies
 
 ```bash
+pip install --upgrade pip
 pip install -r requirements.txt
 
 ```
@@ -146,6 +142,8 @@ docker compose up
     └── .env                   # Environment variables (Git-ignored)
 
 ```
+
+![aijobhuntool.png](aijobhuntool.png)
 
 ## 🤝 Contributing
 Next Features:
