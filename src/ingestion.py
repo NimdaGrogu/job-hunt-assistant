@@ -1,14 +1,11 @@
-import requests
 from langchain_community.document_loaders import WebBaseLoader
-
-import logging
-import asyncio
+from playwright.async_api import async_playwright
 from typing import Optional
-from langchain_community.document_loaders import PlaywrightURLLoader
 from rich.logging import RichHandler
-from bs4 import BeautifulSoup
+import logging, requests
+import asyncio
 
-from rich.logging import RichHandler
+
 # Configure basic config with RichHandler
 logging.basicConfig(
     level=logging.INFO,
@@ -27,38 +24,71 @@ Pending wrapper Function to validate and sanitize the input
 
 def get_jd_with_playwright(url: str) -> Optional[str]:
     """
+    Function that dynamically relies on heuristic HTML parsing and semantic filtering rather than exact CSS paths.
     Uses a headless browser to load JS-heavy job boards.
     """
-    try:
-        logger.info(f"🚀 Launching browser for: [bold cyan]{url}[/bold cyan]", extra={"markup": True})
+    # Setup logging
+    logging.basicConfig(level=logging.INFO, format="%(message)s", handlers=[RichHandler()])
+    logger = logging.getLogger("scraper")
 
-        # remove_selectors helps strip out nav, footers, and scripts automatically
-        loader = PlaywrightURLLoader(
-            urls=[url],
-            remove_selectors=["header", "footer", "nav", ".cookie-banner", "script", "style"],
-        )
-
-        # PlaywrightURLLoader.load() is synchronous, but uses asyncio under the hood
-        docs = loader.load()
-
-        if not docs or len(docs[0].page_content) < 200:
-            logger.warning("⚠️ Content seems too short. The page might still be loading or blocked.")
-            return None
-
-        # Clean up the whitespace and formatting
-        raw_text = docs[0].page_content
+    def clean_text_output(raw_text: str) -> str:
+        """Removes excessive blank lines and trailing spaces for clean RAG ingestion."""
         lines = (line.strip() for line in raw_text.splitlines())
-        clean_text = "\n".join(chunk for chunk in lines if chunk)
+        # Drop empty lines, but keep paragraph breaks (single blank lines)
+        chunks = (line for line in lines if line)
+        return "\n\n".join(chunks)
 
-        logger.info(f"✅ Successfully extracted {len(clean_text)} characters.")
-        if clean_text:
-            logger.info("\n--- EXTRACTED CONTENT PREVIEW ---")
-            logger.info(clean_text[:1000])  # Print first 1000 characters
-        return clean_text
+    async def main_playwright_scraper(url: str) -> str:
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=True)
+            context = await browser.new_context(
+                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+            )
+            page = await context.new_page()
 
-    except Exception as e:
-        logger.error(f"❌ Playwright Error: {e}")
-        return None
+            try:
+                logger.info(f"🚀 Loading dynamic page: {url}")
+                # 'networkidle' is safer here because we don't know the specific selector to wait for
+                await page.goto(url, wait_until="networkidle", timeout=15000)
+
+                logger.info("🧹 Injecting JavaScript to strip boilerplate DOM elements...")
+
+                # 1. Execute JS in the browser to permanently delete non-content nodes
+                await page.evaluate("""() => {
+                    const selectorsToRemove = [
+                        'header', 'footer', 'nav', 'aside', 'noscript', 
+                        'script', 'style', 'iframe', 'svg', 'form', 'button',
+                        '[role="banner"]', '[role="navigation"]', '[role="contentinfo"]',
+                        '.cookie-banner', '#cookie-notice'
+                    ];
+                    document.querySelectorAll(selectorsToRemove.join(',')).forEach(el => el.remove());
+                }""")
+
+                # 2. Try to find semantic 'main' content areas first
+                semantic_selectors = ['main', '[role="main"]', '#content', '#main-content']
+
+                for selector in semantic_selectors:
+                    locator = page.locator(selector).first
+                    if await locator.count() > 0:
+                        text = await locator.inner_text()
+                        # A typical JD is at least 500 characters. If it's too short, it might be a false positive.
+                        if len(text.strip()) > 200:
+                            logger.info(f"🎯 Successfully found content inside semantic tag: {selector}")
+                            return clean_text_output(text)
+
+                # 3. The Ultimate Fallback: Grab the whole body
+                # since the header/footer/nav, was deleted the body should mostly just be the JD.
+                logger.warning("⚠️ Semantic tags failed. Falling back to cleaned <body> extraction.")
+                text = await page.locator('body').inner_text()
+                return clean_text_output(text)
+
+            except Exception as e:
+                logger.error(f"❌ Dynamic Extraction Failed: {e}")
+                return "None"
+            finally:
+                await browser.close()
+
+    return asyncio.run(main_playwright_scraper(url))
 
 
 def get_jd_from_url(url) -> Optional[str]:
@@ -83,7 +113,6 @@ def get_jd_from_url(url) -> Optional[str]:
     except requests.exceptions.HTTPError as e:
         logger.error(f"Error fetching URL: {e}")
         return None
-0
 
 # Function 2: Extract Text from Uploaded PDF
 def get_pdf_text_pypdf(uploaded_file, verbose=False) -> Optional[tuple]:
